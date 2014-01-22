@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<Extern href="stdidcmd.h"/>
+	<Extern href="vsshlids.h"/>
+	<Extern href="guids.h"/>
+
+	<Commands package="guidCoding4Fun_TfsAnalyticsPkg">
+		<Groups>
+			<Group guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="GueryBuilderGroup" priority="0x001">
+				<Parent guid="WorkItemTrackingGuid" id="ResultList"/>
+			</Group>
+		</Groups>
+		
+		<Buttons>
+			<Button guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="cmdidAAAQuery" priority="0x0100" type="Button">
+				<Parent guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="GueryBuilderGroup" />
+				<Icon guid="guidImages" id="bmpPic1" />
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DefaultDisabled</CommandFlag>
+
+				<Strings>
+					<CommandName>cmdidAAAQuery</CommandName>
+					<ButtonText>AAAAAAAAAAAAAAAAAAAAAAAA</ButtonText>
+				</Strings>
+			</Button>
+		</Buttons>
+		
+		<Bitmaps>
+			<Bitmap guid="guidImages" href="Resources\Images.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows"/>
+		</Bitmaps>
+	</Commands>
+	
+	<Symbols>
+		<GuidSymbol name="guidCoding4Fun_TfsAnalyticsPkg" value="{2811c71f-e136-4da6-befb-17614aad1297}" />
+		<GuidSymbol name="guidCoding4Fun_TfsAnalyticsCmdSet" value="{9a4b587d-8ba4-46bf-8ea6-6b204e7d54d9}">
+			<IDSymbol name="GueryBuilderGroup" value="0x1030" />
+			<IDSymbol name="cmdidAAAQuery" value="0x0200" />
+		</GuidSymbol>
+
+		<GuidSymbol name="guidImages" value="{03a16836-08ba-4e3e-bb00-7c4517df5c9c}" >
+			<IDSymbol name="bmpPic1" value="1" />
+			<IDSymbol name="bmpPic2" value="2" />
+			<IDSymbol name="bmpPicSearch" value="3" />
+			<IDSymbol name="bmpPicX" value="4" />
+			<IDSymbol name="bmpPicArrows" value="5" />
+			<IDSymbol name="bmpPicStrikethrough" value="6" />
+		</GuidSymbol>
+	</Symbols>
+
+</CommandTable>
