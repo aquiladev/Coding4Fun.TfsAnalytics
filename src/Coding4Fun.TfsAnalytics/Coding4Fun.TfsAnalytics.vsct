@@ -3,26 +3,24 @@
 
 	<Extern href="stdidcmd.h"/>
 	<Extern href="vsshlids.h"/>
-	<Extern href="guids.h"/>
 
 	<Commands package="guidCoding4Fun_TfsAnalyticsPkg">
 		<Groups>
-			<Group guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="GueryBuilderGroup" priority="0x001">
-				<Parent guid="WorkItemTrackingGuid" id="ResultList"/>
+			<Group guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="QueryResultGroup" priority="0x600">
+				<Parent guid="guidQueryResult" id="ResultList"/>
 			</Group>
 		</Groups>
 		
 		<Buttons>
-			<Button guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="cmdidAAAQuery" priority="0x0100" type="Button">
-				<Parent guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="GueryBuilderGroup" />
+			<Button guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="cmdidShowTimeline" priority="0x0100" type="Button">
+				<Parent guid="guidCoding4Fun_TfsAnalyticsCmdSet" id="QueryResultGroup" />
 				<Icon guid="guidImages" id="bmpPic1" />
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<CommandFlag>DefaultDisabled</CommandFlag>
-
 				<Strings>
-					<CommandName>cmdidAAAQuery</CommandName>
-					<ButtonText>AAAAAAAAAAAAAAAAAAAAAAAA</ButtonText>
+					<CommandName>cmdidShowTimeline</CommandName>
+					<ButtonText>Show timeline</ButtonText>
 				</Strings>
 			</Button>
 		</Buttons>
@@ -35,10 +33,12 @@
 	<Symbols>
 		<GuidSymbol name="guidCoding4Fun_TfsAnalyticsPkg" value="{2811c71f-e136-4da6-befb-17614aad1297}" />
 		<GuidSymbol name="guidCoding4Fun_TfsAnalyticsCmdSet" value="{9a4b587d-8ba4-46bf-8ea6-6b204e7d54d9}">
-			<IDSymbol name="GueryBuilderGroup" value="0x1030" />
-			<IDSymbol name="cmdidAAAQuery" value="0x0200" />
+			<IDSymbol name="QueryResultGroup" value="0x1030" />
+			<IDSymbol name="cmdidShowTimeline" value="0x0200" />
 		</GuidSymbol>
-
+		<GuidSymbol name="guidQueryResult" value="{2DC8D6BB-916C-4B80-9C52-FD8FC371ACC2}" >
+			<IDSymbol name="ResultList" value="0x205"/>
+		</GuidSymbol>
 		<GuidSymbol name="guidImages" value="{03a16836-08ba-4e3e-bb00-7c4517df5c9c}" >
 			<IDSymbol name="bmpPic1" value="1" />
 			<IDSymbol name="bmpPic2" value="2" />
