@@ -20,7 +20,7 @@
 				<CommandFlag>DefaultDisabled</CommandFlag>
 				<Strings>
 					<CommandName>cmdidShowTimeline</CommandName>
-					<ButtonText>Show timeline</ButtonText>
+					<ButtonText>Show time chart</ButtonText>
 				</Strings>
 			</Button>
 		</Buttons>

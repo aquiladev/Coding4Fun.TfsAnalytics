@@ -6,9 +6,12 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using EnvDTE;
+using Microsoft.TeamFoundation.Client;
+using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TeamFoundation;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
 
 namespace Coding4Fun.TfsAnalyticsPackage
@@ -50,6 +53,23 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			}
 		}
 
+		private WorkItemStore _workItemStore;
+		public WorkItemStore WorkItemStore
+		{
+			get
+			{
+				if (_workItemStore != null)
+				{
+					return _workItemStore;
+				}
+
+				var ext = Dte.GetObject("Microsoft.VisualStudio.TeamFoundation.TeamFoundationServerExt") as TeamFoundationServerExt;
+				var tfs = new TeamFoundationServer(ext.ActiveProjectContext.DomainUri);
+				_workItemStore = tfs.TfsTeamProjectCollection.GetService<WorkItemStore>();
+				return _workItemStore;
+			}
+		}
+
 		public Coding4FunTfsAnalyticsPackage()
 		{
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this));
@@ -75,7 +95,15 @@ namespace Coding4Fun.TfsAnalyticsPackage
 
 		private void MenuItemCallback(object sender, EventArgs e)
 		{
+			var info = new Dictionary<WorkItem, Dictionary<WorkItem, TimeSpan>>();
 			var selectedItems = GetSelectedWorkItems();
+			foreach (var item in selectedItems)
+			{
+				var taskIds = RetrieveTasks(item);
+				var pbiInfo = (from int id in taskIds select GetWorkItemDetails(id))
+					.ToDictionary(taskInfo => taskInfo, taskInfo => GetElapsedTime(taskInfo.Revisions));
+				info.Add(item, pbiInfo);
+			}
 
 			var uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
 			Guid clsid = Guid.Empty;
@@ -126,6 +154,48 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			}
 
 			return (IResultsDocument)doc;
+		}
+
+		private WorkItem GetWorkItemDetails(int id)
+		{
+			return WorkItemStore.GetWorkItem(id);
+		}
+
+		public IEnumerable<int> RetrieveTasks(WorkItem item)
+		{
+			var linkType = WorkItemStore.WorkItemLinkTypes.LinkTypeEnds["System.LinkTypes.Hierarchy-Forward"];
+			return item.WorkItemLinks.OfType<WorkItemLink>()
+				.Where(x => x.LinkTypeEnd.Id == linkType.Id)
+				.Select(x => x.TargetId);
+		}
+
+		private TimeSpan GetElapsedTime(RevisionCollection revisions)
+		{
+			bool isTaskInProgress = false;
+			var startDate = new DateTime();
+			var elapsedTime = new TimeSpan();
+			foreach (Revision revision in revisions)
+			{
+				if (!isTaskInProgress && revision.Fields["State"].Value.Equals("In Progress"))
+				{
+					isTaskInProgress = true;
+					startDate = (DateTime)revision.Fields["Changed Date"].Value;
+					continue;
+				}
+				if (isTaskInProgress && !revision.Fields["State"].Value.Equals("In Progress"))
+				{
+					isTaskInProgress = false;
+					var endDate = (DateTime)revision.Fields["Changed Date"].Value;
+					elapsedTime = elapsedTime.Add(endDate.Subtract(startDate));
+				}
+			}
+
+			if (isTaskInProgress)
+			{
+				elapsedTime = elapsedTime.Add(DateTime.Now.Subtract(startDate));
+			}
+
+			return elapsedTime;
 		}
 	}
 }
