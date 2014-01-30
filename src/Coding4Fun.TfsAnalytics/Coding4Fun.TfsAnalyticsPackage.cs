@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using EnvDTE;
 using Microsoft.TeamFoundation.Client;
-using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -19,6 +18,7 @@ namespace Coding4Fun.TfsAnalyticsPackage
 	[PackageRegistration(UseManagedResourcesOnly = true)]
 	[InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
 	[ProvideMenuResource("Menus.ctmenu", 1)]
+	[ProvideToolWindow(typeof(WITimeWindow))]
 	[Guid(GuidList.guidCoding4Fun_TfsAnalyticsPkgString)]
 	[ProvideAutoLoad("{e13eedef-b531-4afe-9725-28a69fa4f896}")]
 	public sealed class Coding4FunTfsAnalyticsPackage : Package
@@ -105,21 +105,18 @@ namespace Coding4Fun.TfsAnalyticsPackage
 				info.Add(item, pbiInfo);
 			}
 
-			var uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-			Guid clsid = Guid.Empty;
-			int result;
-			Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-					   0,
-					   ref clsid,
-					   "Coding4Fun.TfsAnalytics",
-					   string.Join(";", selectedItems.Select(x => x.Id)),
-					   string.Empty,
-					   0,
-					   OLEMSGBUTTON.OLEMSGBUTTON_OK,
-					   OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-					   OLEMSGICON.OLEMSGICON_INFO,
-					   0,        // false
-					   out result));
+			ToolWindowPane window = FindToolWindow(typeof(WITimeWindow), 0, true);
+			if ((null == window) || (null == window.Frame))
+			{
+				throw new NotSupportedException(Resources.CanNotCreateWindow);
+			}
+			var control = window.Content as UsControl;
+			if (control != null)
+			{
+				var windowFrame = (IVsWindowFrame) window.Frame;
+				Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+				control.ShowCharts(info);
+			}
 		}
 
 		private IEnumerable<WorkItem> GetSelectedWorkItems()
