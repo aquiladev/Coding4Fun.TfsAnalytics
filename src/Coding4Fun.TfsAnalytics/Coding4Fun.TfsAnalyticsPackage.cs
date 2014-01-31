@@ -101,7 +101,7 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			{
 				var taskIds = RetrieveTasks(item);
 				var pbiInfo = (from int id in taskIds select GetWorkItemDetails(id))
-					.ToDictionary(taskInfo => taskInfo, taskInfo => GetElapsedTime(taskInfo.Revisions));
+					.ToDictionary(taskInfo => taskInfo, GetElapsedTime);
 				info.Add(item, pbiInfo);
 			}
 
@@ -114,7 +114,8 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			if (control != null)
 			{
 				var windowFrame = (IVsWindowFrame) window.Frame;
-				Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+				//Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+				windowFrame.Show();
 				control.ShowCharts(info);
 			}
 		}
@@ -166,20 +167,24 @@ namespace Coding4Fun.TfsAnalyticsPackage
 				.Select(x => x.TargetId);
 		}
 
-		private TimeSpan GetElapsedTime(RevisionCollection revisions)
+		private TimeSpan GetElapsedTime(WorkItem item)
 		{
+			const string inProgressState = "In Progress";
 			bool isTaskInProgress = false;
 			var startDate = new DateTime();
 			var elapsedTime = new TimeSpan();
-			foreach (Revision revision in revisions)
+			foreach (Revision revision in item.Revisions)
 			{
-				if (!isTaskInProgress && revision.Fields["State"].Value.Equals("In Progress"))
+				var stateField = revision.Fields["State"];
+				if (!stateField.OriginalValue.Equals(inProgressState)
+					&& stateField.Value.Equals(inProgressState))
 				{
 					isTaskInProgress = true;
 					startDate = (DateTime)revision.Fields["Changed Date"].Value;
 					continue;
 				}
-				if (isTaskInProgress && !revision.Fields["State"].Value.Equals("In Progress"))
+				if (stateField.OriginalValue.Equals(inProgressState)
+					&& !stateField.Value.Equals(inProgressState))
 				{
 					isTaskInProgress = false;
 					var endDate = (DateTime)revision.Fields["Changed Date"].Value;
