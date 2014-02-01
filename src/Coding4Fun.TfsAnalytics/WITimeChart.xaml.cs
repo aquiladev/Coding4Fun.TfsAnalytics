@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -46,14 +47,23 @@ namespace Coding4Fun.TfsAnalyticsPackage
 
 		private string GenerateUrl(IOrderedEnumerable<KeyValuePair<WorkItem, TimeSpan>> dic)
 		{
+			var culture = new CultureInfo("en-US");
 			var url = "http://chart.apis.google.com/chart?cht=bhs&chs=900x330";
-			url += "&chds=0," + dic.Max(x => x.Value.TotalMinutes);
-			url += "&chd=t:" + string.Join(",", dic.Select(x => x.Value.TotalMinutes));
+			url += "&chds=0," + dic.Max(x => x.Value.TotalMinutes.ToString(culture));
+			url += "&chd=t:" + string.Join(",", dic.Select(x => x.Value.TotalMinutes.ToString(culture)));
 			url += "&chm=" + string.Join("|", dic.Select((x, index) => string.Format("t{0},,0,{1},18,,ls",
-				x.Value.ToString("g") + " - " + x.Key.Title.Substring(0, Math.Min(x.Key.Title.Length, 30)) + "...",
+				x.Value.ToString("g", culture) + " - " + GetShortTitle(x.Key.Title),
 				index)));
 
 			return url;
+		}
+
+		private string GetShortTitle(string value)
+		{
+			const int maxLength = 30;
+			return value.Length > maxLength
+				? value.Substring(0, maxLength) + "..."
+				: value;
 		}
 	}
 }
