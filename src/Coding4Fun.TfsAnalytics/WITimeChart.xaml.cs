@@ -49,7 +49,7 @@ namespace Coding4Fun.TfsAnalyticsPackage
 		{
 			var culture = new CultureInfo("en-US");
 			var url = "http://chart.apis.google.com/chart?cht=bhs&chs=900x330";
-			url += "&chds=0," + dic.Max(x => x.Value.TotalMinutes.ToString(culture));
+			url += "&chds=0," + dic.Max(x => x.Value.TotalMinutes).ToString(culture);
 			url += "&chd=t:" + string.Join(",", dic.Select(x => x.Value.TotalMinutes.ToString(culture)));
 			url += "&chm=" + string.Join("|", dic.Select((x, index) => string.Format("t{0},,0,{1},18,,ls",
 				x.Value.ToString("g", culture) + " - " + GetShortTitle(x.Key.Title),
