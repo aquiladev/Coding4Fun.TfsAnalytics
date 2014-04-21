@@ -1,69 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
+using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
+
+using Coding4Fun.TfsAnalytics.Models;
+using Coding4Fun.TfsAnalytics.Controllers;
 
 namespace Coding4Fun.TfsAnalyticsPackage
 {
-	public partial class UsControl : UserControl
+	public partial class UsControl
 	{
-		public UsControl()
+		private readonly ITimeController _controller;
+		private IList<ChartWorkItem> _workItems;
+
+		public UsControl(ITimeController controller)
 		{
+			_controller = controller;
 			InitializeComponent();
 		}
 
-		public void ShowCharts(Dictionary<WorkItem, Dictionary<WorkItem, TimeSpan>> info)
+		public void Init(IResultsDocument resDocument, WorkItemStore workItemStore)
+		{
+			_workItems = _controller.GetChartItems(resDocument, workItemStore);
+		}
+
+		public void Render()
 		{
 			ChartsPanel.Children.Clear();
-
-			if (info.Count == 0)
+			foreach (var item in _workItems)
 			{
-				return;
-			}
-
-			foreach (var item in info)
-			{
-				ChartsPanel.Children.Add(new Label { Content = string.Format("{0}: {1}", item.Key.Type.Name, item.Key.Title), FontSize = 20 });
-
-				if (item.Value.Count == 0)
-				{
-					continue;
-				}
-
-				var sortedDic = item.Value.OrderBy(x => x.Value.TotalMinutes);
-				var url = GenerateUrl(sortedDic);
+				ChartsPanel.Children.Add(new Label { Content = item.Caption, FontSize = 20 });
 
 				var bitmapImage = new BitmapImage();
 				bitmapImage.BeginInit();
-				bitmapImage.UriSource = new Uri(url);
+				bitmapImage.UriSource = new Uri(item.ChartUrl);
 				bitmapImage.EndInit();
 
-				ChartsPanel.Children.Add(new Image { Source = bitmapImage, Height = 330 });
+				ChartsPanel.Children.Add(new Image { Source = bitmapImage, Height = item.Size.Height });
 			}
-		}
-
-		private string GenerateUrl(IOrderedEnumerable<KeyValuePair<WorkItem, TimeSpan>> dic)
-		{
-			var culture = new CultureInfo("en-US");
-			var url = "http://chart.apis.google.com/chart?cht=bhs&chs=900x330";
-			url += "&chds=0," + dic.Max(x => x.Value.TotalMinutes).ToString(culture);
-			url += "&chd=t:" + string.Join(",", dic.Select(x => x.Value.TotalMinutes.ToString(culture)));
-			url += "&chm=" + string.Join("|", dic.Select((x, index) => string.Format("t{0},,0,{1},18,,ls",
-				x.Value.ToString("g", culture) + " - " + GetShortTitle(x.Key.Title),
-				index)));
-
-			return url;
-		}
-
-		private string GetShortTitle(string value)
-		{
-			const int maxLength = 30;
-			return value.Length > maxLength
-				? value.Substring(0, maxLength) + "..."
-				: value;
 		}
 	}
 }

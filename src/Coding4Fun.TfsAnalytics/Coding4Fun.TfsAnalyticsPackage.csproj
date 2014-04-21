@@ -177,6 +177,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Coding4Fun.TfsAnalytics\Coding4Fun.TfsAnalytics.csproj">
+      <Project>{72103c4b-14ee-4449-8c70-e21eabcbcad0}</Project>
+      <Name>Coding4Fun.TfsAnalytics</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
   </PropertyGroup>

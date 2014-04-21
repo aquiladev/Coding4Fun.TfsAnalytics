@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using Coding4Fun.TfsAnalytics.Controllers;
+using Microsoft.VisualStudio.Shell;
 using System.Runtime.InteropServices;
 
 namespace Coding4Fun.TfsAnalyticsPackage
@@ -12,7 +13,7 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			Caption = Resources.ToolWindowTitle;
 			BitmapResourceID = 301;
 			BitmapIndex = 1;
-			base.Content = new UsControl();
+			base.Content = new UsControl(new WiTimeController());
 		}
 	}
 }
