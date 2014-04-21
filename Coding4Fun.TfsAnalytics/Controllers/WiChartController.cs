@@ -89,6 +89,11 @@ namespace Coding4Fun.TfsAnalytics.Controllers
 
 		private string GenerateUrl(IOrderedEnumerable<KeyValuePair<WorkItem, TimeSpan>> tasks, ChartSize size)
 		{
+			if (!tasks.Any())
+			{
+				return string.Empty;
+			}
+
 			var culture = new CultureInfo("en-US");
 			var sizes = string.Format("chs={0}x{1}", size.Width, size.Height);
 			var range = string.Format("chds={0},{1}", 0, tasks.Max(x => x.Value.TotalMinutes).ToString(culture));

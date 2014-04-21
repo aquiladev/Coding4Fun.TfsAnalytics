@@ -1,6 +1,7 @@
-﻿using Coding4Fun.TfsAnalytics.Controllers;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using System.Runtime.InteropServices;
+
+using Coding4Fun.TfsAnalytics.Controllers;
 
 namespace Coding4Fun.TfsAnalyticsPackage
 {

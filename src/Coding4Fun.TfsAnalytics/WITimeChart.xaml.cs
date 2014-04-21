@@ -33,6 +33,16 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			{
 				ChartsPanel.Children.Add(new Label { Content = item.Caption, FontSize = 20 });
 
+				if (string.IsNullOrEmpty(item.ChartUrl))
+				{
+					ChartsPanel.Children.Add(new Label
+					{
+						Content = TfsAnalyticsPackage.Resources.TasksDontFound,
+						FontSize = 16
+					});
+					continue;
+				}
+
 				var bitmapImage = new BitmapImage();
 				bitmapImage.BeginInit();
 				bitmapImage.UriSource = new Uri(item.ChartUrl);
