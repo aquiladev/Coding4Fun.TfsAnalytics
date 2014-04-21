@@ -1,15 +1,17 @@
-﻿using System;
+﻿using EnvDTE;
+using System;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using EnvDTE;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TeamFoundation;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
+
+using Coding4Fun.TfsAnalytics.Proxies;
 
 namespace Coding4Fun.TfsAnalyticsPackage
 {
@@ -99,14 +101,15 @@ namespace Coding4Fun.TfsAnalyticsPackage
 				throw new NotSupportedException(Resources.CanNotCreateWindow);
 			}
 			var control = window.Content as UsControl;
-			if (control != null)
+			if (control == null)
 			{
-				var windowFrame = (IVsWindowFrame) window.Frame;
-				//Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
-				windowFrame.Show();
-				control.Init(GetResultsDocument(), WorkItemStore);
-				control.Render();
+				return;
 			}
+
+			var windowFrame = (IVsWindowFrame) window.Frame;
+			windowFrame.Show();
+			control.Init(GetResultsDocument(), new WorkItemStoreProxy(WorkItemStore));
+			control.Render();
 		}
 
 		private readonly object _lockToken = new object();

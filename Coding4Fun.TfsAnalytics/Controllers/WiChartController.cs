@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Coding4Fun.TfsAnalytics.Proxies;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
 
@@ -9,15 +10,15 @@ using Coding4Fun.TfsAnalytics.Models;
 
 namespace Coding4Fun.TfsAnalytics.Controllers
 {
-	public class WiTimeController : ITimeController
+	public class WiChartController : IChartController
 	{
 		private const string ChartApiUrl = "http://chart.apis.google.com";
 
-		public List<ChartWorkItem> GetChartItems(IResultsDocument resDocument, WorkItemStore workItemStore)
+		public List<ChartWorkItem> GetChartItems(IResultsDocument resDocument, IWorkItemStoreProxy storeProxy)
 		{
 			return (from item in GetSelectedItems(resDocument)
-					let taskIds = GetTasks(item, workItemStore)
-					let tasks = (from int id in taskIds select workItemStore.GetWorkItem(id))
+					let taskIds = GetTasks(item, storeProxy)
+					let tasks = (from int id in taskIds select storeProxy.GetWorkItem(id))
 						.ToDictionary(task => task, GetElapsedTime).OrderBy(x => x.Value.TotalMinutes)
 					let size = new ChartSize(tasks.Count())
 					select new ChartWorkItem
@@ -45,9 +46,9 @@ namespace Coding4Fun.TfsAnalytics.Controllers
 			return selectedItems;
 		}
 
-		public IEnumerable<int> GetTasks(WorkItem item, WorkItemStore workItemStore)
+		public IEnumerable<int> GetTasks(WorkItem item, IWorkItemStoreProxy storeProxy)
 		{
-			var linkType = workItemStore.WorkItemLinkTypes.LinkTypeEnds["System.LinkTypes.Hierarchy-Forward"];
+			var linkType = storeProxy.GetHierarchyLinkType();
 			return item.WorkItemLinks.OfType<WorkItemLink>()
 				.Where(x => x.LinkTypeEnd.Id == linkType.Id)
 				.Select(x => x.TargetId);

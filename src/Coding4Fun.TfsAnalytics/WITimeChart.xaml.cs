@@ -2,28 +2,28 @@
 using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
 
-using Coding4Fun.TfsAnalytics.Models;
 using Coding4Fun.TfsAnalytics.Controllers;
+using Coding4Fun.TfsAnalytics.Models;
+using Coding4Fun.TfsAnalytics.Proxies;
 
 namespace Coding4Fun.TfsAnalyticsPackage
 {
 	public partial class UsControl
 	{
-		private readonly ITimeController _controller;
+		private readonly IChartController _controller;
 		private IList<ChartWorkItem> _workItems;
 
-		public UsControl(ITimeController controller)
+		public UsControl(IChartController controller)
 		{
 			_controller = controller;
 			InitializeComponent();
 		}
 
-		public void Init(IResultsDocument resDocument, WorkItemStore workItemStore)
+		public void Init(IResultsDocument resDocument, IWorkItemStoreProxy storeProxy)
 		{
-			_workItems = _controller.GetChartItems(resDocument, workItemStore);
+			_workItems = _controller.GetChartItems(resDocument, storeProxy);
 		}
 
 		public void Render()

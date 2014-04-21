@@ -13,7 +13,7 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			Caption = Resources.ToolWindowTitle;
 			BitmapResourceID = 301;
 			BitmapIndex = 1;
-			base.Content = new UsControl(new WiTimeController());
+			base.Content = new UsControl(new WiChartController());
 		}
 	}
 }

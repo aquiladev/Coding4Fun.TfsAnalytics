@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using Microsoft.TeamFoundation.WorkItemTracking.Client;
+using Coding4Fun.TfsAnalytics.Proxies;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
 
 using Coding4Fun.TfsAnalytics.Models;
 
 namespace Coding4Fun.TfsAnalytics.Controllers
 {
-	public interface ITimeController
+	public interface IChartController
 	{
-		List<ChartWorkItem> GetChartItems(IResultsDocument resDocument, WorkItemStore workItemStore);
+		List<ChartWorkItem> GetChartItems(IResultsDocument resDocument, IWorkItemStoreProxy storeProxy);
 	}
 }
