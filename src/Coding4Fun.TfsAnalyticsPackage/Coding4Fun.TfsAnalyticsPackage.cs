@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EnvDTE;
+using System;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
-using EnvDTE;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TeamFoundation;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
+
+using Coding4Fun.TfsAnalytics.Proxies;
 
 namespace Coding4Fun.TfsAnalyticsPackage
 {
@@ -95,52 +95,26 @@ namespace Coding4Fun.TfsAnalyticsPackage
 
 		private void MenuItemCallback(object sender, EventArgs e)
 		{
-			var info = new Dictionary<WorkItem, Dictionary<WorkItem, TimeSpan>>();
-			var selectedItems = GetSelectedWorkItems();
-			foreach (var item in selectedItems)
-			{
-				var taskIds = RetrieveTasks(item);
-				var pbiInfo = (from int id in taskIds select GetWorkItemDetails(id))
-					.ToDictionary(taskInfo => taskInfo, GetElapsedTime);
-				info.Add(item, pbiInfo);
-			}
-
-			ToolWindowPane window = FindToolWindow(typeof(WITimeWindow), 0, true);
+			var window = FindToolWindow(typeof(WITimeWindow), 0, true);
 			if ((null == window) || (null == window.Frame))
 			{
 				throw new NotSupportedException(Resources.CanNotCreateWindow);
 			}
 			var control = window.Content as UsControl;
-			if (control != null)
+			if (control == null)
 			{
+				return;
+			}
+
 				var windowFrame = (IVsWindowFrame) window.Frame;
-				//Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
 				windowFrame.Show();
-				control.ShowCharts(info);
-			}
-		}
-
-		private IEnumerable<WorkItem> GetSelectedWorkItems()
-		{
-			var resultsDoc = GetActiveResultsDocument();
-			WorkItem[] selectedItems = null;
-			if (resultsDoc != null && resultsDoc.SelectedItemIds.Length > 0)
-			{
-				selectedItems = new WorkItem[resultsDoc.SelectedItemIds.Length];
-				var resultsProvider = resultsDoc.ResultListDataProvider;
-				int idx = 0;
-
-				foreach (int workItemId in resultsDoc.SelectedItemIds)
-				{
-					selectedItems[idx++] = resultsProvider.GetItem(resultsProvider.GetItemIndex(workItemId));
-				}
-			}
-			return selectedItems;
+			control.Init(GetResultsDocument(), new WorkItemStoreProxy(WorkItemStore));
+			control.Render();
 		}
 
 		private readonly object _lockToken = new object();
 
-		private IResultsDocument GetActiveResultsDocument()
+		private IResultsDocument GetResultsDocument()
 		{
 			if (Dte.ActiveDocument == null)
 				return null;
@@ -152,52 +126,6 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			}
 
 			return (IResultsDocument)doc;
-		}
-
-		private WorkItem GetWorkItemDetails(int id)
-		{
-			return WorkItemStore.GetWorkItem(id);
-		}
-
-		public IEnumerable<int> RetrieveTasks(WorkItem item)
-		{
-			var linkType = WorkItemStore.WorkItemLinkTypes.LinkTypeEnds["System.LinkTypes.Hierarchy-Forward"];
-			return item.WorkItemLinks.OfType<WorkItemLink>()
-				.Where(x => x.LinkTypeEnd.Id == linkType.Id)
-				.Select(x => x.TargetId);
-		}
-
-		private TimeSpan GetElapsedTime(WorkItem item)
-		{
-			const string inProgressState = "In Progress";
-			bool isTaskInProgress = false;
-			var startDate = new DateTime();
-			var elapsedTime = new TimeSpan();
-			foreach (Revision revision in item.Revisions)
-			{
-				var stateField = revision.Fields["State"];
-				if (!stateField.OriginalValue.Equals(inProgressState)
-					&& stateField.Value.Equals(inProgressState))
-				{
-					isTaskInProgress = true;
-					startDate = (DateTime)revision.Fields["Changed Date"].Value;
-					continue;
-				}
-				if (stateField.OriginalValue.Equals(inProgressState)
-					&& !stateField.Value.Equals(inProgressState))
-				{
-					isTaskInProgress = false;
-					var endDate = (DateTime)revision.Fields["Changed Date"].Value;
-					elapsedTime = elapsedTime.Add(endDate.Subtract(startDate));
-				}
-			}
-
-			if (isTaskInProgress)
-			{
-				elapsedTime = elapsedTime.Add(DateTime.Now.Subtract(startDate));
-			}
-
-			return elapsedTime;
 		}
 	}
 }

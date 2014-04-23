@@ -70,6 +70,15 @@ namespace Coding4Fun.TfsAnalyticsPackage {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tasks don&apos;t found.
+        /// </summary>
+        internal static string TasksDontFound {
+            get {
+                return ResourceManager.GetString("TasksDontFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Work Items time chart.
         /// </summary>
         internal static string ToolWindowTitle {

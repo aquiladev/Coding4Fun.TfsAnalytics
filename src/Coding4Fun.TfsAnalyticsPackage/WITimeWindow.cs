@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.Shell;
 using System.Runtime.InteropServices;
 
+using Coding4Fun.TfsAnalytics.Controllers;
+
 namespace Coding4Fun.TfsAnalyticsPackage
 {
 	[Guid("f450fa5c-88c9-4cde-901d-588cbcf22d30")]
@@ -12,7 +14,7 @@ namespace Coding4Fun.TfsAnalyticsPackage
 			Caption = Resources.ToolWindowTitle;
 			BitmapResourceID = 301;
 			BitmapIndex = 1;
-			base.Content = new UsControl();
+			base.Content = new UsControl(new WiChartController());
 		}
 	}
 }
