@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Web;
 using Coding4Fun.TfsAnalytics.Proxies;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.TeamFoundation.WorkItemTracking;
@@ -54,7 +55,7 @@ namespace Coding4Fun.TfsAnalytics.Controllers
 				.Select(x => x.TargetId);
 		}
 
-		private TimeSpan GetElapsedTime(WorkItem item)
+		private static TimeSpan GetElapsedTime(WorkItem item)
 		{
 			const string inProgressState = "In Progress";
 			var isTaskInProgress = false;
@@ -87,7 +88,7 @@ namespace Coding4Fun.TfsAnalytics.Controllers
 			return elapsedTime;
 		}
 
-		private string GenerateUrl(IOrderedEnumerable<KeyValuePair<WorkItem, TimeSpan>> tasks, ChartSize size)
+		private static string GenerateUrl(IOrderedEnumerable<KeyValuePair<WorkItem, TimeSpan>> tasks, ChartSize size)
 		{
 			if (!tasks.Any())
 			{
@@ -106,12 +107,13 @@ namespace Coding4Fun.TfsAnalytics.Controllers
 			return string.Format("{0}/chart?cht=bhs&{1}&{2}&{3}&{4}", ChartApiUrl, sizes, range, values, settings);
 		}
 
-		private string GetShortTitle(string value)
+		private static string GetShortTitle(string text)
 		{
 			const int maxLength = 30;
-			return value.Length > maxLength
-				? value.Substring(0, maxLength) + "..."
-				: value;
+			var value = text.Length > maxLength
+				? text.Substring(0, maxLength) + "..."
+				: text;
+			return HttpUtility.UrlEncode(value);
 		}
 	}
 }
